@@ -1,13 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
 void print_ps1(void)
 {
     fprintf(stderr, "$ ");
 }
 
-/*void print_ps2(void)
+void print_ps2(void)
 {
     fprintf(stderr, "> ");
-}*/
+}
 
 
 char *read_cmd(void)
@@ -18,14 +22,16 @@ char *read_cmd(void)
     int     buflen;
     char    *ptr2;
 
-    while (fgets(buf, 1024, stdin))//read about fgets
+    ptr = NULL;
+    ptrlen = 0;
+    while (fgets(buf, 1024, stdin))
     {
         buflen = strlen(buf);
-        if (!ptr)//first entry
-            ptr = malloc(buflen+1);
-        else//other entry
+        if (!ptr)
+            ptr = malloc(buflen + 1);
+        else
         {
-            ptr2 = realloc(ptr, ptrlen+buflen+1);
+            ptr2 = realloc(ptr, ptrlen + buflen + 1);
             if (ptr2)
                 ptr = ptr2;
             else
@@ -40,13 +46,13 @@ char *read_cmd(void)
             strerror(errno));
             return (NULL);
         }
-        strcpy(ptr+ptrlen, buf);//copy the data into ext. str
+        strcpy(ptr + ptrlen, buf);//copy the data into ext. str
         if (buf[buflen - 1] == '\n')
         {
             //escaping the newline character
             if (buflen == 1 || buf[buflen - 2] != '\\')//double for one
                 return (ptr);
-            ptr[ptrlen+buflen - 2] = '\0';
+            ptr[ptrlen + buflen - 2] = '\0';
             buflen -= 2;
             print_ps2();
         }
@@ -60,25 +66,24 @@ int main(int ac, char **av)
 
     char *cmd;
 
-    while (1)
+    do
     {
-        print_ps1();//PRINT FIRST PROMPT STRING (SHELL WAIT COMMAND)
-        //print_ps2();//PRINT SECOND PROMPT STRING FOR MULTILINE CMD
-        cmd = read_cmd();//Read the next line of an input
+        print_ps1();
+        cmd = read_cmd();
         if (!cmd)
-            exit(EXIT_SUCCESS);//why
-        if (cmd[0] == '\0' || strcmp(cmd, "\n") == 0)//if no input
+            exit(EXIT_SUCCESS);
+        if (cmd[0] == '\0' || strcmp(cmd, "\n") == 0)
         {
             free(cmd);
             continue;
         }
-        if (strcmp(cmd, "exit\n") == 0)//we quit the shell on exit_cm
+        if (strcmp(cmd, "exit\n") == 0)
         {
             free(cmd);
             break;
         }
-        printf("s\n", cmd);
+        printf("%s\n", cmd);
         free(cmd);
-    }
+    }   while(1);
     exit(EXIT_SUCCESS);
 }

@@ -2,15 +2,32 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
+
+#define EOF (-1)
+
+struct scanning_s
+{
+    char    *input;
+    long    size;
+    long    pos;
+}
+
+struct extract_s
+{
+    struct scanning_s *input;
+    int               len;
+    char              *token;
+}
 
 void print_ps1(void)
 {
-    fprintf(stderr, "$ ");
+    write(2, "$ ", 2);
 }
 
 void print_ps2(void)
 {
-    fprintf(stderr, "> ");
+    write(2, "> ", 2);
 }
 
 
@@ -61,9 +78,10 @@ char *read_cmd(void)
     return (ptr);
 }
 
+/* Print a simple shell that prints a prompt string, reads input
+and echoes the input back into the screen. */
 int main(int ac, char **av)
 {
-
     char *cmd;
 
     do
@@ -72,12 +90,12 @@ int main(int ac, char **av)
         cmd = read_cmd();
         if (!cmd)
             exit(EXIT_SUCCESS);
-        if (cmd[0] == '\0' || strcmp(cmd, "\n") == 0)
+        if (cmd[0] == '\0' || strcmp(cmd, "\n") == 0) //if no input
         {
             free(cmd);
             continue;
         }
-        if (strcmp(cmd, "exit\n") == 0)
+        if (strcmp(cmd, "exit\n") == 0)//input exit
         {
             free(cmd);
             break;
